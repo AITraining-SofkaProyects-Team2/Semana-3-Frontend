@@ -57,6 +57,23 @@ export class HttpClient {
     return this.handleResponse<TResponse>(response);
   }
 
+  async patch<TRequest, TResponse>(
+    path: string,
+    data: TRequest,
+    headers?: Record<string, string>
+  ): Promise<TResponse> {
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: 'PATCH',
+      headers: {
+        ...this.defaultHeaders,
+        ...headers,
+      },
+      body: JSON.stringify(data),
+    });
+
+    return this.handleResponse<TResponse>(response);
+  }
+
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
