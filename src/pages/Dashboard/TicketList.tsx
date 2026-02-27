@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ChangeStateModal from "../../components/ChangeStateModal";
 import type { Ticket, PaginationMetadata, TicketPriority, TicketStatus } from "../../types/ticket";
 import { TICKET_PRIORITY_LABELS, TICKET_STATUS_LABELS } from "../../types/ticket";
 import { IncidentTypeLabels } from "../../types/incident";
@@ -9,14 +10,17 @@ interface TicketListProps {
   pagination: PaginationMetadata;
   isLoading: boolean;
   onPageChange: (page: number) => void;
+  onTicketUpdated?: () => void;
 }
 
 type SortableField = "ticketId" | "lineNumber" | "type" | "priority" | "status" | "createdAt";
 
 const PRIORITY_ORDER: Record<TicketPriority, number> = { HIGH: 3, MEDIUM: 2, LOW: 1, PENDING: 0 };
 
-const TicketList: React.FC<TicketListProps> = ({ tickets, pagination, isLoading, onPageChange }) => {
+const TicketList: React.FC<TicketListProps> = ({ tickets, pagination, isLoading, onPageChange, onTicketUpdated }) => {
   const [sortBy, setSortBy] = useState<SortableField>("createdAt");
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const { page, totalPages, totalItems } = pagination;
@@ -80,6 +84,16 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, pagination, isLoading,
         {TICKET_STATUS_LABELS[status]}
       </span>
     );
+  };
+
+  const openChangeState = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTicket(null);
   };
 
   return (
@@ -149,7 +163,14 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, pagination, isLoading,
                   </tr>
                 ) : (
                   sortedTickets.map((ticket) => (
-                    <tr key={ticket.ticketId} className="hover:bg-indigo-50/50 transition">
+                    <tr
+                      key={ticket.ticketId}
+                      className="hover:bg-indigo-50/50 transition cursor-pointer"
+                      onClick={() => openChangeState(ticket)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openChangeState(ticket)}
+                    >
                       <td className="px-4 py-3 font-mono text-sm text-indigo-700 font-medium">{ticket.ticketId}</td>
                       <td className="px-4 py-3">{ticket.lineNumber}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{ticket.email ?? "—"}</td>
@@ -231,6 +252,18 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, pagination, isLoading,
             </div>
           )}
         </>
+      )}
+      {selectedTicket && (
+        <ChangeStateModal
+          ticketId={selectedTicket.ticketId}
+          currentStatus={selectedTicket.status}
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onSuccess={() => {
+            closeModal();
+            onTicketUpdated?.();
+          }}
+        />
       )}
     </section>
   );
