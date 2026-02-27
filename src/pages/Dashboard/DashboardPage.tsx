@@ -74,6 +74,7 @@ const DashboardPage: React.FC = () => {
         pagination={pagination}
         isLoading={isLoading}
         onPageChange={setPage}
+        onTicketUpdated={refresh}
       />
     </Layout>
   );
