@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import type { TicketFilters, TicketPriority, TicketStatus } from "../../types/ticket";
 import { TICKET_PRIORITY_LABELS, TICKET_STATUS_LABELS } from "../../types/ticket";
 import { IncidentType, IncidentTypeLabels } from "../../types/incident";
+import { ticketsService } from '../../services/tickets.service';
 
 interface FiltersProps {
   filters: TicketFilters;
@@ -62,6 +63,26 @@ const Filters: React.FC<FiltersProps> = ({
     if (!filters.lineNumber && localLineNumber) setLocalLineNumber("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.ticketId, filters.lineNumber]);
+
+  // Efecto adicional: realizar petición y loguear respuesta para depuración
+  useEffect(() => {
+    let mounted = true;
+    const fetchAndLog = async () => {
+      try {
+        const res = await ticketsService.getTickets(filters);
+        if (mounted) {
+          // eslint-disable-next-line no-console
+          console.log('Filters: ticketsService.getTickets response for filters', filters, res);
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Filters: error fetching tickets for filters', filters, err);
+      }
+    };
+
+    fetchAndLog();
+    return () => { mounted = false; };
+  }, [filters]);
 
   const handleSelectChange = useCallback(
     (key: keyof TicketFilters) => (e: React.ChangeEvent<HTMLSelectElement>) => {

@@ -15,8 +15,12 @@ const Metrics: React.FC = () => {
       setError(null);
       try {
         const res = await ticketsService.getMetrics();
+        // Log response for debugging
         // Expected shape: { metrics: [{ status, priority, count }, ...] } or a more structured object
         // Backend returns structured metrics: { totalTickets, byStatus, byPriority, byType }
+        // Debug log:
+        // eslint-disable-next-line no-console
+        console.log('ticketsService.getMetrics response:', res);
         const total = Number(res?.totalTickets ?? 0);
         const pri = res?.byPriority ?? {};
         const stat = res?.byStatus ?? {};

@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: frontend:1.0
+    environment:
+      - API_URL=${API_URL}
     ports:
       - "8080:80"
     restart: unless-stopped
