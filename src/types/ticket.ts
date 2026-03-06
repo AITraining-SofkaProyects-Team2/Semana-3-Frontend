@@ -18,7 +18,7 @@ export interface Ticket {
 
 export interface PaginationMetadata {
   page: number;
-  pageSize: number;
+  pageSize?: number;
   totalItems: number;
   totalPages: number;
 }
