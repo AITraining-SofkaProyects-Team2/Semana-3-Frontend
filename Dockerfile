@@ -23,4 +23,6 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
+LABEL org.opencontainers.image.source=https://github.com/AITraining-SofkaProyects-Team2/Semana-3-Frontend
+
 CMD ["nginx", "-g", "daemon off;"]
