@@ -1,9 +1,11 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.PRODUCER_API_URL || 'http://localhost:3000';
+const API_REST_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 import { logger } from '../utils/logger';
 
 interface HttpClientConfig {
   baseUrl: string;
+  apiRestUrl: string;
   defaultHeaders?: Record<string, string>;
 }
 
@@ -13,12 +15,14 @@ interface HttpClientConfig {
  */
 export class HttpClient {
   private readonly baseUrl: string;
+  private readonly apiRestUrl: string;
   private readonly defaultHeaders: Record<string, string>;
 
   constructor(config?: Partial<HttpClientConfig>) {
     // Allow explicitly passing an empty string as baseUrl to make requests
     // relative to the current origin (useful when the app is served behind a proxy).
     this.baseUrl = config && config.baseUrl !== undefined ? config.baseUrl : API_BASE_URL;
+    this.apiRestUrl = config && config.apiRestUrl !== undefined ? config.apiRestUrl : API_REST_URL;
     this.defaultHeaders = {
       'Content-Type': 'application/json',
       ...config?.defaultHeaders,
@@ -46,7 +50,7 @@ export class HttpClient {
     path: string,
     headers?: Record<string, string>
   ): Promise<TResponse> {
-    const response = await fetch(`${this.baseUrl}${path}`, {
+    const response = await fetch(`${this.apiRestUrl}${path}`, {
       method: 'GET',
       headers: {
         ...this.defaultHeaders,
@@ -62,7 +66,7 @@ export class HttpClient {
     data: TRequest,
     headers?: Record<string, string>
   ): Promise<TResponse> {
-    const response = await fetch(`${this.baseUrl}${path}`, {
+    const response = await fetch(`${this.apiRestUrl}${path}`, {
       method: 'PATCH',
       headers: {
         ...this.defaultHeaders,
